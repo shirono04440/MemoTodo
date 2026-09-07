@@ -1,0 +1,7 @@
+# MemoTodo 运行依赖
+pillow>=12.0          # 图标提取 / 背景图 / 托盘图标
+psutil>=7.0           # 后台进程监控
+pywin32>=312          # Windows 图标提取与系统托盘 (win32gui/win32ui/win32con)
+
+# 打包依赖（仅构建 exe 时需要）
+pyinstaller>=6.0

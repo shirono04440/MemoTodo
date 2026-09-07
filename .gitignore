@@ -1,0 +1,25 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---- PyInstaller 打包产物 ----
+build/
+dist/
+
+# ---- 本地数据 / 日志（由程序运行时生成，不入库）----
+todo.db
+todo.db-wal
+todo.db-shm
+*.log
+
+# ---- IDE / 编辑器 ----
+.vscode/
+.idea/
+*.swp
+
+# ---- Claude Code 本地配置 ----
+.claude/
