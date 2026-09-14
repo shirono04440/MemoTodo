@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 from settings import save_settings
+from autostart import set_autostart
 
 
 class DialogSettingsMixin:
@@ -17,7 +18,7 @@ class DialogSettingsMixin:
         dialog.resizable(False, False)
         dialog.transient(self.root)
         dialog.grab_set()
-        w, h = 440, 420
+        w, h = 440, 480
         x = self.root.winfo_x() + 80
         y = self.root.winfo_y() + 20
         w, h, x, y = self._clamp_to_screen(w, h, x, y)
@@ -34,8 +35,10 @@ class DialogSettingsMixin:
                  "window_width": _vars["ww"].get(), "window_height": _vars["wh"].get(),
                  "bg_image_path": _vars["bg"].get().strip(),
                  "bg_image_opacity": _vars["op"].get(),
-                 "window_opacity": _vars["wo"].get(), "window_on_top": _vars["ot"].get()}
+                 "window_opacity": _vars["wo"].get(), "window_on_top": _vars["ot"].get(),
+                 "auto_start": _vars["auto_start"].get()}
             save_settings(c)
+            set_autostart(bool(c["auto_start"]))
             self.config.update(c)
             self._make_fonts()
             self._retitle_bar()
@@ -206,5 +209,15 @@ class DialogSettingsMixin:
         tk.Label(fr2, text="置顶:", font=("Microsoft YaHei", 11), bg=th["bg_primary"],
                  fg=th["text_muted"], width=5, anchor="e").pack(side=tk.LEFT, padx=(8, 12))
         tk.Checkbutton(fr2, text="始终在最前", variable=_vars["ot"],
+            font=("Microsoft YaHei", 10), bg=th["bg_primary"], activebackground=th["bg_primary"],
+            selectcolor=th["bg_primary"], fg=th["text_primary"]).pack(side=tk.LEFT)
+
+        sec("🚀 启动")
+        _vars["auto_start"] = tk.IntVar(value=self.config.get("auto_start", 0))
+        fr3 = tk.Frame(inner, bg=th["bg_primary"])
+        fr3.pack(fill=tk.X, padx=8, pady=4)
+        tk.Label(fr3, text="自启动:", font=("Microsoft YaHei", 11), bg=th["bg_primary"],
+                 fg=th["text_muted"], width=5, anchor="e").pack(side=tk.LEFT, padx=(8, 12))
+        tk.Checkbutton(fr3, text="开机自动启动", variable=_vars["auto_start"],
             font=("Microsoft YaHei", 10), bg=th["bg_primary"], activebackground=th["bg_primary"],
             selectcolor=th["bg_primary"], fg=th["text_primary"]).pack(side=tk.LEFT)

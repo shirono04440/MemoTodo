@@ -15,6 +15,7 @@ DEFAULTS = {
     "window_opacity": 1.0,
     "window_on_top": 0,
     "icon_size": 48,
+    "auto_start": 0,
 }
 
 
