@@ -1,6 +1,8 @@
 """缩放抓手 + 背景图渲染 Mixin"""
 
 import os
+import sys
+import ctypes
 import tkinter as tk
 
 from PIL import Image, ImageTk
@@ -88,6 +90,43 @@ class ResizeMixin:
         if fr: fr.place(x=0, y=cw, width=ew, height=wh - 2*cw)
         fr = self._resize_frames.get("right")
         if fr: fr.place(x=ww - ew, y=cw, width=ew, height=wh - 2*cw)
+
+        self._apply_rounded_corners()
+
+    # ================================================================
+    #  圆角窗口（Windows）
+    # ================================================================
+
+    def _apply_rounded_corners(self):
+        """用 SetWindowRgn 把无边框窗口裁成圆角矩形（仅 Windows）"""
+        if sys.platform != "win32":
+            return
+        try:
+            user32 = ctypes.windll.user32
+            gdi32 = ctypes.windll.gdi32
+            user32.GetParent.restype = ctypes.c_void_p
+            user32.GetParent.argtypes = [ctypes.c_void_p]
+            gdi32.CreateRoundRectRgn.restype = ctypes.c_void_p
+            user32.SetWindowRgn.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool]
+
+            # overrideredirect 下 winfo_id 是子窗口，真正的顶层是它的父窗口
+            hwnd = user32.GetParent(self.root.winfo_id())
+            if not hwnd:
+                hwnd = self.root.winfo_id()
+
+            w = self.root.winfo_width()
+            h = self.root.winfo_height()
+            if w < 2 or h < 2:
+                return
+
+            radius = int(self.config.get("corner_radius", 16))
+            r = max(0, min(radius, min(w, h) // 2))
+            if r <= 0:
+                return
+            rgn = gdi32.CreateRoundRectRgn(0, 0, w + 1, h + 1, r * 2, r * 2)
+            user32.SetWindowRgn(hwnd, rgn, True)
+        except Exception:
+            pass
 
     def _edge_start(self, event, dx, dy):
         if self._pinned:

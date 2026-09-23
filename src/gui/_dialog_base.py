@@ -2,6 +2,8 @@
 
 import tkinter as tk
 
+from ._widgets import RoundedCard
+
 
 class DialogBaseMixin:
     """对话框复用组件：可滚动画布容器、模块卡片、小按钮"""
@@ -32,17 +34,17 @@ class DialogBaseMixin:
         return cv, inner, _cleanup
 
     def _make_module_card(self, parent, title, emoji):
-        """统一风格的模块卡片，返回内容容器 Frame"""
+        """统一风格的圆角模块卡片，返回内容容器 Frame（card.inner）"""
         th = self.theme
         fs = self._base_font_size.get()
-        card = tk.Frame(parent, bg=th["bg_card"], bd=0, highlightthickness=0)
+        card = RoundedCard(parent, bg=th["bg_card"], outer_bg=th["bg_primary"], radius=12)
         card.pack(fill=tk.X, padx=16, pady=(0, 12))
-        hdr = tk.Frame(card, bg=th["bg_card"])
-        hdr.pack(fill=tk.X, padx=16, pady=(14, 6))
+        hdr = tk.Frame(card.inner, bg=th["bg_card"])
+        hdr.pack(fill=tk.X, padx=12, pady=(10, 6))
         tk.Label(hdr, text=f"{emoji}  {title}",
                  font=("Microsoft YaHei", fs, "bold"),
                  bg=th["bg_card"], fg=th["text_primary"]).pack(side=tk.LEFT)
-        return card
+        return card.inner
 
     def _make_small_btn(self, parent, text, bg_color, hover_color, cmd, **kw):
         """统一风格的小按钮，自动绑定 hover"""

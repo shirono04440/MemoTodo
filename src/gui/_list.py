@@ -7,6 +7,7 @@ from PIL import ImageTk
 from database import get_all_items
 from icon_utils import extract_icon, load_custom_icon, make_default_icon
 from themes import THEMES
+from ._widgets import RoundedCard
 
 
 class ListMixin:
@@ -101,20 +102,22 @@ class ListMixin:
         return lbl
 
     def _build_card_frame(self, item, idx):
-        """为事项创建真实 tk.Frame 卡片"""
+        """为事项创建圆角卡片"""
         th = self.theme
         icon_size = self.config.get("icon_size", 48)
         notes = item.get("notes", "")
         is_open = item.get("opened_today", 0)
+        radius = 12
 
-        card = tk.Frame(self._inner_frame, bg=th["bg_card"], bd=0,
-                        highlightthickness=0, cursor="hand2")
+        card = RoundedCard(self._inner_frame, bg=th["bg_card"],
+                           outer_bg=th["bg_primary"], radius=radius, cursor="hand2")
         card.pack(fill=tk.X, padx=12, pady=3)
+        body = card.inner  # 内容实际放在这里
 
         # 色条
-        strip = tk.Frame(card, bg=th["accent"] if is_open else th["text_dim"],
+        strip = tk.Frame(body, bg=th["accent"] if is_open else th["text_dim"],
                         width=4, bd=0, highlightthickness=0)
-        strip.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 0))
+        strip.pack(side=tk.LEFT, fill=tk.Y)
 
         # 图标
         custom_icon = item.get("icon_path", "")
@@ -128,12 +131,12 @@ class ListMixin:
         tk_icon = ImageTk.PhotoImage(icon_img)
         self._tk_icons[f"item_{item['id']}"] = tk_icon
 
-        icon_lbl = tk.Label(card, image=tk_icon, bg=th["bg_card"], bd=0, cursor="hand2")
+        icon_lbl = tk.Label(body, image=tk_icon, bg=th["bg_card"], bd=0, cursor="hand2")
         icon_lbl.pack(side=tk.LEFT, padx=(8, 12), pady=8)
         icon_lbl.bind("<Button-1>", lambda e, p=item["exe_path"]: self._on_launch(p))
 
         # 文字区 —— 空白处可拖拽排序
-        ta = tk.Frame(card, bg=th["bg_card"], bd=0, highlightthickness=0)
+        ta = tk.Frame(body, bg=th["bg_card"], bd=0, highlightthickness=0)
         ta.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, pady=8)
         ta.bind("<Button-1>", lambda e, i=idx: self._drag_press(e, i))
         ta.bind("<B1-Motion>", self._drag_card_move)
@@ -152,11 +155,11 @@ class ListMixin:
             lambda e, p=item["exe_path"]: (self._on_launch(p) or "break"))
 
         # 右键编辑
-        for w in (card, name_lbl, ta, icon_lbl):
+        for w in (card, body, name_lbl, ta, icon_lbl):
             w.bind("<Button-3>", lambda e, i=item: self._on_edit_item(i))
 
         # 操作按钮
-        actions = tk.Frame(card, bg=th["bg_card"], bd=0, highlightthickness=0)
+        actions = tk.Frame(body, bg=th["bg_card"], bd=0, highlightthickness=0)
         actions.pack(side=tk.RIGHT, padx=(0, 10), pady=8)
 
         gear_btn = tk.Label(actions, text="⚙", font=("Microsoft YaHei", 12),
@@ -181,20 +184,12 @@ class ListMixin:
         check_btn.bind("<Button-1>",
             lambda e, iid=item["id"], cur=is_open: self._toggle_status(iid, cur))
 
-        # hover
+        # hover：整卡换色（内部子控件递归同步）
         hov = self._lighten(th["bg_card"], -10 if th is THEMES["dark"] else -6)
         def on_enter(e, c=card, bg=th["bg_card"], hv=hov):
-            c.configure(bg=hv)
-            for ch_w in c.winfo_children():
-                try:
-                    if ch_w.cget("bg") == bg: ch_w.configure(bg=hv)
-                except tk.TclError: pass
+            c.set_bg(hv)
         def on_leave(e, c=card, bg=th["bg_card"]):
-            c.configure(bg=bg)
-            for ch_w in c.winfo_children():
-                try:
-                    if ch_w.cget("bg") == hov: ch_w.configure(bg=bg)
-                except tk.TclError: pass
+            c.set_bg(bg)
         card.bind("<Enter>", on_enter)
         card.bind("<Leave>", on_leave)
 

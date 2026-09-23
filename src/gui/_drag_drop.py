@@ -31,7 +31,7 @@ class DragDropMixin:
             if idx < 0 or idx >= len(self._card_frames):
                 return
             self._drag_card = self._card_frames[idx]
-            self._drag_card.configure(bg=self._lighten(self.theme["bg_card"], -15))
+            self._drag_card.set_bg(self._lighten(self.theme["bg_card"], -15))
             self._drag_active = True
             self._drag_card.pack_forget()
 
@@ -115,7 +115,7 @@ class DragDropMixin:
             self._drag_indicator.destroy()
             self._drag_indicator = None
 
-        clean.configure(bg=self.theme["bg_card"])
+        clean.set_bg(self.theme["bg_card"])
         self._drag_card = None
         self._drag_active = False
 
