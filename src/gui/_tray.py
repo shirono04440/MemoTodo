@@ -3,6 +3,7 @@
 import os
 import sys
 import threading
+import time
 import traceback
 import tkinter as tk
 
@@ -56,6 +57,9 @@ class TrayMixin:
 
             while self._tray_running:
                 win32gui.PumpWaitingMessages()
+                # 没有消息时让出 CPU。原先这里是无睡眠的忙轮询，
+                # 空闲时也会占满一个 CPU 核心。
+                time.sleep(0.05)
 
             self.__remove_tray_icon()
             win32gui.DestroyWindow(self._tray_hwnd)
@@ -88,7 +92,7 @@ class TrayMixin:
                 win32gui.NIF_ICON | win32gui.NIF_MESSAGE | win32gui.NIF_TIP,
                 self._WM_TRAY,
                 hicon,
-                "备忘 Todo",
+                "日程表",
             )
             win32gui.Shell_NotifyIcon(win32gui.NIM_ADD, nid)
             self._tray_icon_added = True

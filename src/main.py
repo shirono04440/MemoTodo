@@ -1,4 +1,4 @@
-"""备忘 Todo 软件 — 入口文件"""
+"""日程表软件 — 入口文件"""
 
 import sys
 import os
@@ -52,7 +52,7 @@ def main():
         # 弹窗显示错误（仅在打包后）
         if getattr(sys, 'frozen', False):
             import tkinter.messagebox as mb
-            mb.showerror("MemoTodo 错误", traceback.format_exc())
+            mb.showerror("日程表 错误", traceback.format_exc())
 
 
 if __name__ == "__main__":

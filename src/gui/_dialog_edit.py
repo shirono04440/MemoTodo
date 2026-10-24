@@ -15,7 +15,7 @@ class DialogEditMixin:
     def _on_edit_item(self, item):
         th = self.theme
         dialog = tk.Toplevel(self.root)
-        dialog.title("二游日常表 - 编辑事项")
+        dialog.title("日程表 - 编辑事项")
         dialog.configure(bg=th["bg_primary"])
         dialog.resizable(False, False)
         dialog.transient(self.root)
