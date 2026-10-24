@@ -29,7 +29,7 @@ class TitleBarMixin:
         self._title_bar.bind("<ButtonRelease-1>", self._drag_stop)
 
         # 标题
-        self._title_label = tk.Label(self._title_bar, text="📋  日程表",
+        self._title_label = tk.Label(self._title_bar, text="📋  二游日常表",
                  font=("Microsoft YaHei", self._base_font_size.get() + 2, "bold"),
                  bg=th["bg_header"], fg=th["text_header"], bd=0)
         self._title_label.pack(side=tk.LEFT, padx=16, pady=4)

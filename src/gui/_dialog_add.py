@@ -13,7 +13,7 @@ class DialogAddMixin:
     def _on_add(self):
         th = self.theme
         dialog = tk.Toplevel(self.root)
-        dialog.title("日程表 - 添加事项")
+        dialog.title("二游日常表 - 添加事项")
         dialog.configure(bg=th["bg_primary"])
         dialog.resizable(False, False)
         dialog.transient(self.root)

@@ -13,7 +13,7 @@ class DialogSettingsMixin:
     def _on_settings(self):
         th = self.theme
         dialog = tk.Toplevel(self.root)
-        dialog.title("日程表 - 设置")
+        dialog.title("二游日常表 - 设置")
         dialog.configure(bg=th["bg_primary"])
         dialog.resizable(False, False)
         dialog.transient(self.root)

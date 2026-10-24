@@ -88,7 +88,7 @@ class TrayMixin:
                 win32gui.NIF_ICON | win32gui.NIF_MESSAGE | win32gui.NIF_TIP,
                 self._WM_TRAY,
                 hicon,
-                "日程表",
+                "备忘 Todo",
             )
             win32gui.Shell_NotifyIcon(win32gui.NIM_ADD, nid)
             self._tray_icon_added = True
