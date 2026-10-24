@@ -41,6 +41,7 @@ class TodoApp(UtilsMixin,
         self.config = load_settings()
 
         self.root = tk.Tk()
+        self.root.title("日程表")
         self.root.configure(bg=self.theme["bg_primary"])
         fs = self.config.get("font_size", 11)
         min_w = max(420, 180 + fs * 20)
