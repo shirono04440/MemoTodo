@@ -39,8 +39,6 @@ todo/
 │   └── test_all.py         # 全功能检测脚本
 ├── assets/                 # 资源
 │   └── test_icon.png       # 托盘图标（打包时也作为 exe 图标）
-├── docs/                   # 文档
-│   └── README.md
 ├── MemoTodo.spec           # PyInstaller 打包配置（根目录）
 ├── requirements.txt        # 依赖清单
 └── todo.db                 # 运行后自动生成的数据库（不入库）
