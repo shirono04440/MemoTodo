@@ -72,7 +72,10 @@ class ResizeMixin:
         self._resize_active = False
         self._sync_resize_edges()
         # 窗口尺寸变化时重算边条位置
-        self.root.bind("<Configure>", lambda e: self._sync_resize_edges(), add="+")
+        # 只响应顶层窗口自身的尺寸变化，忽略子控件冒泡上来的 Configure
+        self.root.bind("<Configure>",
+                       lambda e: self._sync_resize_edges() if e.widget is self.root else None,
+                       add="+")
 
     def _sync_resize_edges(self, *_):
         """根据窗口当前尺寸重新放置四边条"""
@@ -126,8 +129,15 @@ class ResizeMixin:
             r = max(0, min(radius, min(w, h) // 2))
             if r <= 0:
                 return
+            # SetWindowRgn 会再次触发 <Configure>，若每次都重建 region
+            # 就会形成 Resize → SetWindowRgn → Resize 的死循环（CPU 100%、窗口卡死）。
+            # 尺寸和圆角没变时直接跳过。
+            key = (hwnd, w, h, r)
+            if key == getattr(self, "_last_rgn_key", None):
+                return
             rgn = gdi32.CreateRoundRectRgn(0, 0, w + 1, h + 1, r * 2, r * 2)
             user32.SetWindowRgn(hwnd, rgn, True)
+            self._last_rgn_key = key
         except Exception:
             pass
 
