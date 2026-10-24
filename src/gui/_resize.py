@@ -3,6 +3,7 @@
 import os
 import sys
 import ctypes
+from ctypes import wintypes
 import tkinter as tk
 
 from PIL import Image, ImageTk
@@ -104,18 +105,20 @@ class ResizeMixin:
         try:
             user32 = ctypes.windll.user32
             gdi32 = ctypes.windll.gdi32
-            user32.GetParent.restype = ctypes.c_void_p
-            user32.GetParent.argtypes = [ctypes.c_void_p]
-            gdi32.CreateRoundRectRgn.restype = ctypes.c_void_p
-            user32.SetWindowRgn.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool]
 
             # overrideredirect 下 winfo_id 是子窗口，真正的顶层是它的父窗口
             hwnd = user32.GetParent(self.root.winfo_id())
             if not hwnd:
                 hwnd = self.root.winfo_id()
 
-            w = self.root.winfo_width()
-            h = self.root.winfo_height()
+            # 用 GetWindowRect 取顶层窗口的真实外框尺寸。
+            # 不能用 winfo_width/height：那是客户区/子窗口大小，
+            # 拖动缩放瞬间会与顶层窗口尺寸错位，导致边框被裁错。
+            rect = wintypes.RECT()
+            if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+                return
+            w = rect.right - rect.left
+            h = rect.bottom - rect.top
             if w < 2 or h < 2:
                 return
 
@@ -160,6 +163,10 @@ class ResizeMixin:
         else:
             ny = wy
         self.root.geometry(f"{nw}x{nh}+{nx}+{ny}")
+        # 先把 geometry 同步到系统（否则 GetWindowRect 读到旧尺寸），
+        # 再用当前真实外框尺寸重建圆角 region。
+        self.root.update_idletasks()
+        self._apply_rounded_corners()
 
     def _edge_stop(self, event):
         self._resize_active = False
@@ -170,6 +177,7 @@ class ResizeMixin:
         self.config["window_height"] = h
         save_settings(self.config)
         self._save_window_position()
+        self._apply_rounded_corners()
         self._refresh_list()
 
     # ================================================================
